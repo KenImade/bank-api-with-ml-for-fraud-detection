@@ -1,5 +1,8 @@
 .vscode
 .DS_Store
+.idea
+.envs/*
+!.envs/.env.example
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
