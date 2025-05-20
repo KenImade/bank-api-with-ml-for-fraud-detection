@@ -3,7 +3,7 @@ from typing import Literal
 
 
 class Settings(BaseSettings):
-    ENVIRONMENT: Literal["local","staging","production"] = "local"
+    ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
     model_config = SettingsConfigDict(
         env_file="../../.envs/.env.local",
