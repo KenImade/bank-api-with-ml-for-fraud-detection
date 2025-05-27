@@ -28,7 +28,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
         return False
 
 
-def genearate_username() -> str:
+def generate_username() -> str:
     bank_name = settings.SITE_NAME
     words = bank_name.split()
     prefix = "".join([word[0] for word in words]).upper()

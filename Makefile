@@ -33,3 +33,6 @@ inspect-network:
 
 psql:
 	docker compose -f local.yml exec -it postgres psql -U kenneth -d nextgen
+
+api-logs:
+	docker compose logs -f local.yml api

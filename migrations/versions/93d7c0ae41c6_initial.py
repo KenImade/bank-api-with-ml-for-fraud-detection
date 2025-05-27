@@ -1,8 +1,8 @@
-"""add_user_table
+"""initial
 
-Revision ID: c85f6c874927
+Revision ID: 93d7c0ae41c6
 Revises: 
-Create Date: 2025-05-20 14:28:29.999587
+Create Date: 2025-05-27 21:34:48.835808
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlmodel
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
-revision: str = 'c85f6c874927'
+revision: str = '93d7c0ae41c6'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -32,7 +32,7 @@ def upgrade() -> None:
     sa.Column('is_superuser', sa.Boolean(), nullable=False),
     sa.Column('security_question', sa.Enum('MOTHER_MAIDEN_NAME', 'CHILDHOOD_FRIEND', 'FAVORITE_COLOR', 'BIRTH_CITY', name='securityquestionsschema'), nullable=False),
     sa.Column('security_answer', sqlmodel.sql.sqltypes.AutoString(length=30), nullable=False),
-    sa.Column('account_status', sa.Enum('ACTIVE', 'INACTIVE', 'LOCKED', 'PENDING', name='acccountstatusschema'), nullable=False),
+    sa.Column('account_status', sa.Enum('ACTIVE', 'INACTIVE', 'LOCKED', 'PENDING', name='accountstatusschema'), nullable=False),
     sa.Column('role', sa.Enum('CUSTOMER', 'ACCOUNT_EXCECUTIVE', 'BRANCH_MANAGER', 'ADMIN', 'SUPER_ADMIN', 'TELLER', name='rolechoicesschema'), nullable=False),
     sa.Column('id', sa.UUID(), nullable=False),
     sa.Column('hashed_password', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
