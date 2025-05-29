@@ -42,6 +42,8 @@ while True:
     time.sleep(RETRY_INTERVAL)
 END
 
->&2 echo 'PostgreSQL is ready to accept connections'
+echo >&2 'PostgreSQL is ready to accept connections'
+
+alembic upgrade head
 
 exec "$@"
