@@ -32,7 +32,7 @@ async def create_next_of_kin_route(
         return next_of_kin
     except HTTPException as http_ex:
         logger.warning(
-            f"Next of kin create failed for user {current_user.email}: {http_ex.detail}"
+            f"Next of kin creation failed for user {current_user.email}: {http_ex.detail}"
         )
         raise http_ex
     except Exception as e:
