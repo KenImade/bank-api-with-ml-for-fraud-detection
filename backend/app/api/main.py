@@ -12,6 +12,7 @@ from backend.app.api.routes.auth import (
 from backend.app.api.routes.profile import (
     create, update, upload, me, all_profiles
 )
+from backend.app.api.routes.next_of_kin import create as create_next_of_kin
 
 api_router = APIRouter()
 
@@ -27,3 +28,4 @@ api_router.include_router(update.router)
 api_router.include_router(upload.router)
 api_router.include_router(me.router)
 api_router.include_router(all_profiles.router)
+api_router.include_router(create_next_of_kin.router)
