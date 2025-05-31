@@ -36,11 +36,11 @@ class BankAccount(BankAccountBaseSchema, table=True):
             onupdate=func.current_timestamp(),
         ),
     )
-    kyc_verified_on : datetime | None = Field(
+    kyc_verified_on: datetime | None = Field(
         default=None,
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),
-            nullable=False,
+            nullable=True,
         ),
     )
 
