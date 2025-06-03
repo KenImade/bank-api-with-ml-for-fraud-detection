@@ -9,12 +9,12 @@ Dear {{full_name}},
 A transaction has occurred on your account with the following details:
 
     Transaction Type: {{ action }}
-    Amount: {{ currency }} {{ amoount }}
+    Amount: {{ currency }} {{ amount }}
     Account Name: {{ account_name }}
     Account Number: {{ account_number }}
     Description: {{ description }} 
     Date: {{ transaction_date }} 
-    Available Balance: {{ curency }} {{ balance }} 
+    Available Balance: {{ currency }} {{ balance }} 
 
 Security Tip: If you did not authorize this transaction, please contact our support team immediately.
 
