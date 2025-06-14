@@ -1,5 +1,6 @@
 import secrets
-
+from decimal import Decimal, ROUND_HALF_UP
+from typing import Tuple
 from backend.app.bank_account.enums import AccountCurrencyEnum
 from backend.app.core.config import settings
 from backend.app.core.logging import get_logger
@@ -13,17 +14,14 @@ def get_currency_code(currency: AccountCurrencyEnum) -> str:
         AccountCurrencyEnum.USD: settings.CURRENCY_CODE_USD,
         AccountCurrencyEnum.EUR: settings.CURRENCY_CODE_EUR,
         AccountCurrencyEnum.GBP: settings.CURRENCY_CODE_GBP,
-        AccountCurrencyEnum.NGN: settings.CURRENCY_CODE_NGN
+        AccountCurrencyEnum.NGN: settings.CURRENCY_CODE_NGN,
     }
     currency_code = currency_codes.get(currency)
 
     if not currency_code:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "status": "error",
-                "message": f"Invalid currency: {currency}"
-            }
+            detail={"status": "error", "message": f"Invalid currency: {currency}"},
         )
 
     return currency_code
@@ -56,8 +54,8 @@ def generate_account_number(currency: AccountCurrencyEnum) -> str:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail={
                     "status": "error",
-                    "message": "Bank or Branch code not configured"
-                }
+                    "message": "Bank or Branch code not configured",
+                },
             )
 
         currency_code = get_currency_code(currency)
@@ -87,6 +85,77 @@ def generate_account_number(currency: AccountCurrencyEnum) -> str:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "status": "error",
-                "message": f"Failed to generate account number: {str(e)}"
-            }
+                "message": f"Failed to generate account number: {str(e)}",
+            },
         )
+
+
+# These values usually come from an external database or API
+EXCHANGE_RATES = {
+    "USD": {
+        "EUR": Decimal("0.87"),
+        "GBP": Decimal("0.74"),
+        "NGN": Decimal("1541.43"),
+    },
+    "EUR": {
+        "USD": Decimal("1.16"),
+        "GBP": Decimal("0.85"),
+        "NGN": Decimal("1781.20"),
+    },
+    "GBP": {
+        "USD": Decimal("1.36"),
+        "EUR": Decimal("1.17"),
+        "NGN": Decimal("2090.86"),
+    },
+    "NGN": {
+        "USD": Decimal("0.00065"),
+        "EUR": Decimal("0.00056"),
+        "GBP": Decimal("0.00048"),
+    },
+}
+
+CONVERSION_FEE_RATE = Decimal("0.005")
+
+
+def get_exchange_rate(
+    from_currency: AccountCurrencyEnum, to_currency: AccountCurrencyEnum
+) -> Decimal:
+    if from_currency == to_currency:
+        return Decimal("1.0")
+
+    try:
+        rate = EXCHANGE_RATES[from_currency.value][to_currency.value]
+
+        return rate.quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
+    except KeyError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "status": "error",
+                "message": f"Exhange rate not available for {from_currency.value} to {to_currency.value}",
+            },
+        )
+
+
+def calculate_conversion(
+    amount: Decimal,
+    from_currency: AccountCurrencyEnum,
+    to_currency: AccountCurrencyEnum,
+) -> Tuple[Decimal, Decimal, Decimal]:
+
+    if from_currency == to_currency:
+        return amount, Decimal("1.0"), Decimal("0")
+
+    exchange_rate = get_exchange_rate(from_currency, to_currency)
+
+    conversion_fee = (amount * CONVERSION_FEE_RATE).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
+
+    amount_after_fee = amount - conversion_fee
+
+    converted_amount = (amount_after_fee * exchange_rate).quantize(
+        Decimal("0.01"), rounding=ROUND_HALF_UP
+    )
+
+    return converted_amount, exchange_rate, conversion_fee
