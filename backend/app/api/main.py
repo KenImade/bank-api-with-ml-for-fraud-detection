@@ -9,19 +9,18 @@ from backend.app.api.routes.auth import (
     refresh,
     logout,
 )
-from backend.app.api.routes.profile import (
-    create, update, upload, me, all_profiles
-)
+from backend.app.api.routes.profile import create, update, upload, me, all_profiles
 from backend.app.api.routes.next_of_kin import (
     create as create_next_of_kin,
     all,
     update as update_next_of_kin,
-    delete
+    delete,
 )
 from backend.app.api.routes.bank_account import (
     create as create_bank_account,
     activate as activate_bank_account,
-    deposit
+    deposit,
+    transfer,
 )
 
 api_router = APIRouter()
@@ -45,3 +44,4 @@ api_router.include_router(delete.router)
 api_router.include_router(create_bank_account.router)
 api_router.include_router(activate_bank_account.router)
 api_router.include_router(deposit.router)
+api_router.include_router(transfer.router)

@@ -80,7 +80,7 @@ services:
     image: docker.io/rabbitmq:3.13-management
     ports:
       - "15672:15672"
-      - "5672:5672"
+      # - "5672:5672"
     volumes:
       - nextgen_rabbitmq_data:/var/lib/rabbitmq
     networks:

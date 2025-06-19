@@ -126,7 +126,7 @@ class IdempotencyKey(SQLModel, table=True):
             server_default=text("CURRENT_TIMESTAMP"),
         ),
     )
-    expired_at: datetime = Field(
+    expires_at: datetime = Field(
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),
             nullable=False,
