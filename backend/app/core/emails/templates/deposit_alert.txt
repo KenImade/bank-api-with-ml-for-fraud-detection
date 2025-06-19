@@ -14,6 +14,7 @@ A transaction has occurred on your account with the following details:
     Account Number: {{ account_number }}
     Description: {{ description }} 
     Date: {{ transaction_date }} 
+    Reference: {{ reference }}
     Available Balance: {{ currency }} {{ balance }} 
 
 Security Tip: If you did not authorize this transaction, please contact our support team immediately.

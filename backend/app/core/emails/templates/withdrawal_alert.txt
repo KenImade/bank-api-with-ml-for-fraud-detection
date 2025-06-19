@@ -1,0 +1,21 @@
+{% extends "base.txt" %}
+
+{% block header %} Withdrawal Alert {% endblock %}
+
+{% block content %}
+
+Dear {{full_name}},
+
+A withdrawal has been processed on your account with the following details:
+
+    Amount: </strong> {{ currency }} {{ amount }}
+    Account Name: </strong>{{ account_name }}
+    Account Number: </strong> {{ account_number }}
+    Description: </strong> {{ description }}
+    Date: </strong> {{ transaction_date }}
+    Reference: </strong> {{ reference }}
+    Available Balance: </strong> {{ currency }} {{ balance|round(2) }}
+
+Security Tip: If you did not authorize this withdrawal or you notice any discrepancy, please contact our support team immediately.
+
+{% endblock %}
