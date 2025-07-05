@@ -208,7 +208,7 @@ async def top_up_virtual_card(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail={
                     "status": "error",
-                    "message": "Virtual card or bank account nof found",
+                    "message": "Virtual card or bank account not found",
                 },
             )
 
