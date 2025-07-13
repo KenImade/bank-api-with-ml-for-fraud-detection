@@ -9,6 +9,7 @@ from backend.app.transaction.enums import (
     TransactionStatusEnum,
     TransactionCategoryEnum,
 )
+from backend.app.core.ai.enums import AIReviewStatusEnum
 from sqlalchemy.dialects import postgresql as pg
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -26,6 +27,8 @@ class TransactionBaseSchema(SQLModel):
     transaction_metadata: dict | None = Field(default=None, sa_column=Column(JSONB))
 
     failed_reason: str | None = Field(default=None)
+
+    ai_review_status: AIReviewStatusEnum | None = Field(default=None)
 
 
 class TransactionCreateSchema(TransactionBaseSchema):
@@ -158,7 +161,7 @@ class StatementRequestSchema(SQLModel):
         default=None,
         min_length=16,
         max_length=16,
-        description="16-digit account number for specific account statements"
+        description="16-digit account number for specific account statements",
     )
 
 
@@ -175,3 +178,32 @@ class TransactionReviewSchema(SQLModel):
     is_fraud: bool
     notes: str | None = None
     approve_transaction: bool = False
+
+
+class RiskHistoryParams(SQLModel):
+    start_date: datetime | None = None
+    end_date: datetime | None = None
+    min_risk_score: float | None = None
+    user_id: str | None = None
+    skip: int = 0
+    limit: int = 20
+
+
+class RiskHistoryItemSchema(SQLModel):
+    transaction_id: str
+    reference: str
+    amount: str
+    created_at: datetime
+    risk_score: float
+    risk_factors: dict
+    review_status: AIReviewStatusEnum | None = None
+    is_confirmed_fraud: bool | None = None
+    reviewed_by: str | None = None
+    review_details: dict | None = None
+
+
+class PaginatedHistoryResponseSchema(SQLModel):
+    total: int
+    skip: int
+    limit: int
+    items: list[RiskHistoryItemSchema]
