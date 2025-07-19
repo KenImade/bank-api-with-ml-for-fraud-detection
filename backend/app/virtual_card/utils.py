@@ -7,7 +7,7 @@ from argon2 import PasswordHasher
 def generate_visa_card_number() -> str:
     prefix = "4"
 
-    partial_number = prefix = "".join(secrets.choice("0123456789") for _ in range(14))
+    partial_number = prefix + "".join(secrets.choice("0123456789") for _ in range(14))
 
     total = 0
 
