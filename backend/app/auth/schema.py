@@ -95,6 +95,7 @@ class OTPVerifyRequestSchema(SQLModel):
         max_length=6,
     )
 
+
 class PasswordResetRequestSchema(SQLModel):
     email: EmailStr
 

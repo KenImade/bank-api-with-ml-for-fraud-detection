@@ -57,7 +57,7 @@ def create_jwt_token(id: uuid.UUID, type: str = settings.COOKIE_ACCESS_NAME) -> 
         expire_delta = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES)
     else:
         expire_delta = timedelta(days=settings.JWT_REFRESH_TOKEN_EXPIRATION_DAYS)
-    
+
     payload = {
         "id": str(id),
         "type": type,
