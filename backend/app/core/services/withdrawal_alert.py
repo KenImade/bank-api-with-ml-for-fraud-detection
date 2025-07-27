@@ -26,6 +26,7 @@ async def send_withdrawal_alert(
         "full_name": full_name,
         "amount": amount,
         "account_name": account_name,
+        "account_number": account_number,
         "currency": currency,
         "description": description,
         "transaction_date": transaction_date.strftime("%Y-%m-%d %H:%M:%S UTC"),
