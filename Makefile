@@ -36,3 +36,6 @@ psql:
 
 api-logs:
 	docker compose logs -f local.yml api
+
+seed-db:
+	docker compose -f local.yml exec api python -m backend.app.core.management.commands.seed_db

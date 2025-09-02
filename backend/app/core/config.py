@@ -1,16 +1,13 @@
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal
+
 import cloudinary
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
-    model_config = SettingsConfigDict(
-        env_file="../../.envs/.env.local",
-        env_ignore_empty=True,
-        extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_file="../../.envs/.env.local", env_ignore_empty=True, extra="ignore")
     API_V1_STR: str = ""
     PROJECT_NAME: str = ""
     PROJECT_DESCRIPTION: str = ""
@@ -62,10 +59,10 @@ class Settings(BaseSettings):
 
     BANK_CODE: str = ""
     BANK_BRANCH_CODE: str = ""
-    CURRENCY_CODE_USD: str = ""
-    CURRENCY_CODE_EUR: str = ""
-    CURRENCY_CODE_GBP: str = ""
-    CURRENCY_CODE_NGN: str = ""
+    CURRENCY_CODE_USD: str = "01"
+    CURRENCY_CODE_EUR: str = "02"
+    CURRENCY_CODE_GBP: str = "03"
+    CURRENCY_CODE_NGN: str = "04"
     MAX_BANK_ACCOUNTS: int = 3
 
 
@@ -74,5 +71,5 @@ settings = Settings()
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
     api_key=settings.CLOUDINARY_API_KEY,
-    api_secret=settings.CLOUDINARY_API_SECRET
+    api_secret=settings.CLOUDINARY_API_SECRET,
 )

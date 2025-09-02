@@ -3,6 +3,7 @@
 .idea
 .envs/*
 !.envs/.env.example
+.flake8
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

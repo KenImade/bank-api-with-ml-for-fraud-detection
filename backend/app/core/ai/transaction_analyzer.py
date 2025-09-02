@@ -252,14 +252,14 @@ class TransactionAnalyzer:
                 if risk_scores["velocity_amount"] > 0.7:
                     high_risk_triggers.append("high_velocity")
 
-                risk_factors = {
-                    factor: {
-                        "score": round(score, 2),
-                        "weight": weights[factor],
-                        "contribution": round(score * weights[factor], 2),
-                    }
-                    for factor, score in risk_scores.items()
+            risk_factors = {
+                factor: {
+                    "score": round(score, 2),
+                    "weight": weights[factor],
+                    "contribution": round(score * weights[factor], 2),
                 }
+                for factor, score in risk_scores.items()
+            }
 
             risk_factors["risk_triggers"] = {
                 "triggers": high_risk_triggers,
