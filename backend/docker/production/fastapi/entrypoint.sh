@@ -46,13 +46,16 @@ END
 echo >&2 'PostgreSQL is ready to accept connections'
 
 echo "Running database migrations..."
-if alembic current 2>/dev/null; then
-    echo "Alembic already initialized, running upgrade only"
+
+echo "Running: alembic upgrade head"
+alembic upgrade head
+
+if [ $? -eq 0 ]; then
+    echo "Migrations completed successfully"
     alembic upgrade head
 else
-    echo "Initializaing Alembic and running migrations"
-    alembic revision --autogenerate -m "Initial migration"
-    alembic upgrade head
+    echo "Migration failed with exit code $?"
+    exit 1
 fi
 
 echo >&2 'Migrations applied'

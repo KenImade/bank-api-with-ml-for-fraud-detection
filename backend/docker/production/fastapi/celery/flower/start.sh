@@ -10,4 +10,4 @@ exec celery \
     -A backend.app.core.celery_app \
     -b "${CELERY_BROKER_URL}" \
     flower \
-    --basic-auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}
+    --basic-auth="${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
