@@ -8,7 +8,7 @@ set -o pipefail
 
 exec /usr/local/bin/gunicorn backend.app.main:app \
     --workers 4 \
-    --worker-class unicorn.workers.UvicornWorker \
+    --worker-class uvicorn.workers.UvicornWorker \
     --bind 0.0.0.0:8000 \
     --timeout 120 \
     --graceful-timeout 30 \
