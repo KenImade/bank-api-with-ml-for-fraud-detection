@@ -52,7 +52,6 @@ alembic upgrade head
 
 if [ $? -eq 0 ]; then
     echo "Migrations completed successfully"
-    alembic upgrade head
 else
     echo "Migration failed with exit code $?"
     exit 1
