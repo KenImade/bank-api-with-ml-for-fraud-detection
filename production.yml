@@ -1,0 +1,167 @@
+services:
+  traefik:
+    image: docker.io/traefik:v3.2
+    restart: unless-stopped
+    env_file:
+      - ./.envs/.env.production
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik-certificates:/certificates
+      - traefik-logs:/var/log/traefik
+    networks:
+      - nextgen_prod_nw
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address-:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=kenimade91@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/certificates/acme.json"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--accesslog=true"
+      - "--accesslog.filePath=/var/log/traefik/access.log"
+      - "--log.filePath=/var/log/traefik/traefik.log"
+      - "--log.level=INFO"
+      - "--api.dashboard=false"
+  
+  api: &api
+    build:
+      context: .
+      dockerfile: ./backend/docker/production/fastapi/Dockerfile
+    volumes:
+      - api_logs:/src/backend/app/logs
+    expose:
+      - "8000"
+    env_file:
+      - ./.envs/.env.production
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq
+    command: /start.sh
+    networks:
+      - nextgen_prod_nw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.entrypoints=websecure"
+      - "traefik.http.routers.api.rule=Host(`api.theikp.xyz`)"
+      - "traefik.http.routers.api.tls.certresolver=myresolver"
+      - "traefik.http.services.api-service.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.api-service.loadbalancer.healthcheck.interval=30s"
+      - "traefik.http.services.api-service.loadbalancer.healthcheck.timeout=5s"
+      - "traefik.http.services.api-service.loadbalancer.server.port=8000"
+  
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.11.1
+    ports:
+      - "4000:4000"
+    volumes:
+      - nextgen_mlflow_data_prod:/mlflow
+    env_file:
+      - ./.envs/.env.production
+    command: >
+       mlflow server
+       --host 0.0.0.0
+       --port 4000
+       --backend-store-uri ${MLFLOW_BACKEND_STORE_URI}
+       --artifacts-destination ${MLFLOW_ARTIFACTS_DESTINATION}
+       --serve-artifacts
+    depends_on:
+      - postgres
+    networks:
+      - nextgen_prod_nw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mlflow.entrypoints=websecure"
+      - "traefik.http.routers.mlflow.rule=Host(`mlflow.theikp.xyz`)"
+      - "traefik.http.routers.mlflow.tls.certresolver=myresolver"
+      - "traefik.http.services.mlflow.loadbalancer.server.port=4000"
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./backend/docker/production/postgres/Dockerfile
+    ports: 
+      - "5433:5432"
+    volumes:
+      - nextgen_prod_db:/var/lib/postgresql/data
+    env_file:
+      - ./.envs/.env.production
+    networks:
+      - nextgen_prod_nw
+  
+  redis:
+    image: docker.io/redis:7.0-alpine
+    command: redis-server --appendonly yes
+    networks:
+      - nextgen_prod_nw
+  
+  rabbitmq:
+    image: docker.io/rabbitmq:3.13-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    volumes:
+      - rabbitmq_data_prod:/var/lib/rabbitmq
+    networks:
+      - nextgen_prod_nw
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rabbitmq.entrypoints=websecure"
+      - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.theikp.xyz`)"
+      - "traefik.http.routers.rabbitmq.tls.certresolver=myresolver"
+      - "traefik.http.services.rabbitmq.loadbalancer.server.port=15672"
+
+  celeryworker:
+    <<: *api
+    ports: []
+    command: /start-celeryworker.sh
+  
+  flower:
+    <<: *api
+    ports:
+      - "5555:5555"
+    volumes:
+      - nextgen_flower_data_prod:/data
+    command: /start-flower.sh
+    depends_on:
+      - redis
+      - rabbitmq
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flower.entrypoints=websecure"
+      - "traefik.http.routers.flower.rule=Host(`flower.theikp.xyz`)"
+      - "traefik.http.routers.flower.tls.certresolver=myresolver"
+      - "traefik.http.services.flower.loadbalancer.server.port=5555"
+    
+  celerybeat:
+    <<: *api
+    ports: []
+    command: /start-celerybeat.sh
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - nextgen_prod_nw
+    volumes:
+      - celerybeat_data:/tmp
+
+networks:
+  nextgen_prod_nw:
+    external: true
+
+volumes:
+  api_logs:
+  nextgen_prod_db:
+  nextgen_flower_data_prod:
+  rabbitmq_data_prod:
+  nextgen_mlflow_data_prod:
+  traefik-logs:
+  portainer_data_prod:
+  celerybeat_data:
+  traefik-certificates:
