@@ -1,8 +1,9 @@
 .vscode
 .DS_Store
 .idea
-.envs/*
+!.envs/*
 !.envs/.env.example
+!.envs/.env.production
 .flake8
 
 ### Python ###
