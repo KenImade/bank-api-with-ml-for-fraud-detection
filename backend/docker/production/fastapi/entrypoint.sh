@@ -1,16 +1,10 @@
 #!/bin/bash
-
 set -o errexit
-
 set -o nounset
-
 set -o pipefail
 
-python << END
-import sys
-import time
-import psycopg
-import os
+python <<'PY'
+import sys, time, os, psycopg
 
 MAX_WAIT_SECONDS = 60
 RETRY_INTERVAL = 5
@@ -19,44 +13,33 @@ start_time = time.time()
 def check_database():
     try:
         psycopg.connect(
-            dbname="${POSTGRES_DB}",
-            user="${POSTGRES_USER}",
-            password="${POSTGRES_PASSWORD}",
-            host="${POSTGRES_HOST}",
-            port="${POSTGRES_PORT}",
-        )
+            dbname=os.environ["POSTGRES_DB"],
+            user=os.environ["POSTGRES_USER"],
+            password=os.environ["POSTGRES_PASSWORD"],
+            host=os.environ["POSTGRES_HOST"],
+            port=os.environ.get("POSTGRES_PORT", "5432"),
+            connect_timeout=5,
+        ).close()
         return True
     except psycopg.OperationalError as error:
         elapsed = int(time.time() - start_time)
-        sys.stderr.write(f"Database connection attempt failed after {elapsed} seconds: {error}\n")
+        print(f"Database connection attempt failed after {elapsed} seconds: {error}", file=sys.stderr)
         return False
 
 while True:
     if check_database():
         break
-    
     if time.time() - start_time > MAX_WAIT_SECONDS:
-        sys.stderr.write(f"Error: Database connection could not be established after 60 seconds\n")
+        print(f"Error: Database connection could not be established after {MAX_WAIT_SECONDS} seconds", file=sys.stderr)
         sys.exit(1)
-    
-    sys.stderr.write(f"Waiting {RETRY_INTERVAL} seconds before retrying... \n")
+    print(f"Waiting {RETRY_INTERVAL} seconds before retrying...", file=sys.stderr)
     time.sleep(RETRY_INTERVAL)
-END
+PY
 
 echo >&2 'PostgreSQL is ready to accept connections'
-
-echo "Running database migrations..."
-
 echo "Running: alembic upgrade head"
 alembic upgrade head
-
-if [ $? -eq 0 ]; then
-    echo "Migrations completed successfully"
-else
-    echo "Migration failed with exit code $?"
-    exit 1
-fi
-
+echo "Migrations completed successfully"
 echo >&2 'Migrations applied'
 
 exec "$@"
