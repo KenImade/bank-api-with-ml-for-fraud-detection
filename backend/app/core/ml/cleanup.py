@@ -48,7 +48,7 @@ def cleanup_mlflow_runs():
                     client.set_terminated(run.info.run_id, "FINISHED")
 
                 logger.info(f"Cleaned up {len(running_runs)} stale MLflow runs")
-        except (SSLError, ssl.SSLError) as e:
+        except ssl.SSLError as e:
             logger.warning(f"SSL error during MLflow cleanup (this is expected in some environments): {e}")
 
         except Exception as e:
@@ -56,7 +56,7 @@ def cleanup_mlflow_runs():
 
         logger.info("MLflow run cleanup completed successfully")
 
-    except (SSLError, ssl.SSLError) as e:
+    except ssl.SSLError as e:
         logger.warning(f"SSL error during MLflow clenaup (this is expected in some environments): {e}")
 
     except Exception as e:

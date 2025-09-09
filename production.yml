@@ -17,7 +17,7 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address-:443"
+      - "--entrypoints.websecure.address=:443"
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=kenimade91@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/certificates/acme.json"
